@@ -1,0 +1,161 @@
+openapi: 3.0.3
+info:
+  title: Web3 Transaction Assembler API
+  description: API for assembling unsigned transactions for Bitcoin, Ethereum-compatible chains, and Solana.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Returns the health status of the server.
+      operationId: getHealth
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  uptime:
+                    type: number
+                    example: 123.456
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2025-03-08T12:00:00.000Z"
+                  environment:
+                    type: string
+                    example: development
+
+  /create/transaction/bitcoin:
+    post:
+      summary: Create Bitcoin Transaction
+      description: Generates an unsigned Bitcoin PSBT transaction.
+      operationId: createBitcoinTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fromAddress:
+                  type: string
+                  example: "bc1qexample..."
+                toAddress:
+                  type: string
+                  example: "bc1qexample..."
+                amount:
+                  type: integer
+                  example: 10000
+                feeRate:
+                  type: integer
+                  example: 1000
+      responses:
+        '200':
+          description: Successfully generated Bitcoin PSBT
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  psbt:
+                    type: string
+                    example: "cHNidP8B...base64EncodedPSBT..."
+        '400':
+          description: Invalid request parameters
+        '500':
+          description: Internal server error
+
+  /create/transaction/evm:
+    post:
+      summary: Create EVM Transaction
+      description: Generates an unsigned transaction for Ethereum, Polygon, or Base.
+      operationId: createEVMTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fromAddress:
+                  type: string
+                  example: "0xYourWalletAddress"
+                toAddress:
+                  type: string
+                  example: "0xRecipientAddress"
+                amount:
+                  type: number
+                  example: 0.1
+                network:
+                  type: string
+                  enum: [ethereum, polygon, base]
+                  example: "ethereum"
+                gasPrice:
+                  type: string
+                  example: "50"
+                gasLimit:
+                  type: string
+                  example: "21000"
+      responses:
+        '200':
+          description: Successfully generated unsigned EVM transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  unsignedTx:
+                    type: string
+                    example: "0xf86b808...rawUnsignedTransaction..."
+        '400':
+          description: Invalid request parameters
+        '500':
+          description: Internal server error
+
+  /create/transaction/solana:
+    post:
+      summary: Create Solana Transaction
+      description: Generates an unsigned transaction for Solana.
+      operationId: createSolanaTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fromAddress:
+                  type: string
+                  example: "YourSolanaAddress"
+                toAddress:
+                  type: string
+                  example: "RecipientSolanaAddress"
+                amount:
+                  type: number
+                  example: 1.5
+      responses:
+        '200':
+          description: Successfully generated unsigned Solana transaction
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  unsignedTx:
+                    type: string
+                    example: "AQAB...base64EncodedTransaction..."
+        '400':
+          description: Invalid request parameters
+        '500':
+          description: Internal server error

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  namespace: default
+  name: {{ include "web3-transaction-assembler.fullname" . }}
+  labels:
+    {{- include "web3-transaction-assembler.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "web3-transaction-assembler.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "web3-transaction-assembler.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: web3-transaction-assembler
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "web3-transaction-assembler.fullname" . }}-config
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.service.httpPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.service.httpPort }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+ 

@@ -1,0 +1,47 @@
+apiVersion: skaffold/v4beta1
+kind: Config
+metadata:
+  name: web3-transaction-assembler 
+build:
+  local:
+    push: false
+    useBuildkit: true
+  tagPolicy:
+    customTemplate:
+      template: "{{.date}}-{{.branch}}-g{{.sha}}"
+      components:
+        - name: date
+          dateTime:
+            format: "2006.01.02"
+            timezone: "UTC"
+        - name: branch
+          gitCommit:
+            variant: CommitSha
+            ignoreChanges: true
+        - name: sha
+          gitCommit:
+            variant: AbbrevCommitSha
+  artifacts:
+    - image: "com.kvs.web3-transaction-assembler"
+      docker:
+        buildArgs:
+          IMAGE_TAG: "{{.IMAGE_TAG}}"
+      hooks:
+        before:
+          - command:
+              - sh
+              - -c
+              - echo "CONTAINER_TAG=$SKAFFOLD_IMAGE_TAG">build.env
+
+profiles:
+  - name: web3service
+    deploy:
+      helm:
+        releases:
+          - name: web3-transaction-assembler
+            chartPath: chart/web3-transaction-assembler
+            valuesFiles:
+              - "chart/web3-transaction-assembler/values-dev.yaml"
+            setValueTemplates:
+              image.repository: "{{.IMAGE_REPO}}"
+              image.tag: "{{.IMAGE_TAG}}"

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: default
+  name: {{ include "web3-transaction-assembler.fullname" . }}
+  labels:
+    {{- include "web3-transaction-assembler.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.service.httpPort }}
+      targetPort: {{ .Values.service.httpPort }}
+  selector:
+    {{- include "web3-transaction-assembler.selectorLabels" . | nindent 4 }}

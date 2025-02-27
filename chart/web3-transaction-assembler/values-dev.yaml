@@ -1,0 +1,15 @@
+image:
+  repository: github.com/kvs-coder/web3-transaction-assembler
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: LoadBalancer
+  httpPort: 30090
+
+config:
+  ethereumRpcUrl: "https://eth.llamarpc.com"
+  polygonRpcUrl: "https://rpc-mainnet.matic.network"
+  baseRpcUrl: "https://mainnet.base.org"
+  solanaRpcUrl: "https://api.mainnet-beta.solana.com"
+  bitcoinBlockstreamApi: "https://blockstream.info/api"
